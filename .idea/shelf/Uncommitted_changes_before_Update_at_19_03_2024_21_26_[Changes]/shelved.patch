@@ -1,0 +1,267 @@
+Index: src/main/java/View/CompraDeProdutos.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package View;\r\n\r\nimport Model.ProdutoDAO;\r\nimport java.util.Scanner;\r\n\r\npublic class CompraDeProdutos {\r\n\r\n    public static void executar(Scanner teclado, ProdutoDAO produtoDao) {\r\n        System.out.println(\"COMPRAR PRODUTOS\");\r\n        System.out.println(\"================\");\r\n        System.out.println(\"Digite o código do produto que deseja comprar:\");\r\n        int codigo = Integer.parseInt(teclado.nextLine()); // Obtém o código do produto do usuário.\r\n        System.out.println(\"Digite a quantidade:\");\r\n        int quantidade = Integer.parseInt(teclado.nextLine()); // Obtém a quantidade desejada.\r\n\r\n        // Tentativa de realizar a compra do produto com o código e quantidade fornecidos.\r\n        try {\r\n            produtoDao.comprarProduto(codigo, quantidade);\r\n        } catch (Exception e) {\r\n            System.err.println(\"Não foi possível realizar a compra: \" + e.getMessage());\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/View/CompraDeProdutos.java b/src/main/java/View/CompraDeProdutos.java
+--- a/src/main/java/View/CompraDeProdutos.java	(revision 0c955ae10ca11207178f4ec4cacb19e3234b99dd)
++++ b/src/main/java/View/CompraDeProdutos.java	(date 1710884475252)
+@@ -1,6 +1,7 @@
+ package View;
+ 
+ import Model.ProdutoDAO;
++import Helper.Utils; // Assumindo que você tem uma classe Helper com uma função de pausa
+ import java.util.Scanner;
+ 
+ public class CompraDeProdutos {
+@@ -16,6 +17,35 @@
+         // Tentativa de realizar a compra do produto com o código e quantidade fornecidos.
+         try {
+             produtoDao.comprarProduto(codigo, quantidade);
++            System.out.println("Escolha a forma de pagamento:");
++            System.out.println("1 - Débito");
++            System.out.println("2 - Crédito");
++            System.out.println("3 - Dinheiro");
++            System.out.println("4 - PIX");
++            System.out.print("Opção: ");
++            int opcaoPagamento = Integer.parseInt(teclado.nextLine());
++
++            switch (opcaoPagamento) {
++                case 1:
++                    System.out.println("Processando pagamento no débito...");
++                    break;
++                case 2:
++                    System.out.println("Processando pagamento no crédito...");
++                    break;
++                case 3:
++                    System.out.println("Processando pagamento em dinheiro...");
++                    break;
++                case 4:
++                    System.out.println("Processando pagamento via PIX...");
++                    break;
++                default:
++                    System.out.println("Opção de pagamento inválida.");
++                    return; // Retorna para sair do método caso a opção de pagamento seja inválida.
++            }
++
++            Utils.pausar(5); // Simula o processamento do pagamento com uma pausa de 5 segundos.
++            System.out.println("Pagamento realizado com sucesso!");
++
+         } catch (Exception e) {
+             System.err.println("Não foi possível realizar a compra: " + e.getMessage());
+         }
+Index: src/main/java/View/MenuPrincipal.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package View;\r\n\r\nimport Helper.Utils;\r\nimport Model.ProdutoDAO;\r\nimport java.util.Scanner;\r\n\r\npublic class MenuPrincipal {\r\n\r\n    private Scanner teclado;\r\n    private ProdutoDAO produtoDao;\r\n\r\n    public MenuPrincipal(Scanner teclado, ProdutoDAO produtoDao) {\r\n        this.teclado = teclado;\r\n        this.produtoDao = produtoDao;\r\n    }\r\n\r\n    public void exibir() {\r\n        while (true) { // Mantém o menu rodando até que o usuário escolha sair\r\n            System.out.println(\"=================================\");\r\n            System.out.println(\"========= BEM-VINDO(A) ==========\");\r\n            System.out.println(\"======== MERCADO CENTRAL ========\");\r\n            System.out.println(\"=================================\");\r\n            System.out.println(\" Selecione uma opção abaixo: \");\r\n            System.out.println(\"1 - CADASTRAR PRODUTO\");\r\n            System.out.println(\"2 - LISTAR PRODUTOS\");\r\n            System.out.println(\"3 - COMPRAR PRODUTO\");\r\n            System.out.println(\"4 - VISUALIZAR CARRINHO\");\r\n            System.out.println(\"5 - SAIR\");\r\n\r\n            try {\r\n                int opcao = lerOpcaoDoUsuario();\r\n                if (!processarOpcaoMenu(opcao)) break; // Sai do loop se processarOpcaoMenu retornar false\r\n            } catch (NumberFormatException e) {\r\n                System.out.println(\"Entrada inválida. Por favor, insira um número.\");\r\n                Utils.pausar(2);\r\n                // Não precisa chamar exibir() novamente, pois o loop while já faz isso\r\n            }\r\n        }\r\n    }\r\n\r\n    private int lerOpcaoDoUsuario() {\r\n        String entrada = teclado.nextLine();\r\n        return Integer.parseInt(entrada);\r\n    }\r\n\r\n    private boolean processarOpcaoMenu(int opcao) {\r\n        switch (opcao) {\r\n            case 1:\r\n                CadastroDeProduto.executar(teclado, produtoDao);\r\n                return true;\r\n            case 2:\r\n                ListagemDeProdutos.executar(produtoDao);\r\n                return true;\r\n            case 3:\r\n                CompraDeProdutos.executar(teclado, produtoDao);\r\n                return true;\r\n            case 4:\r\n                VisualizacaoDoCarrinho.executar();\r\n                return true;\r\n            case 5:\r\n                System.out.println(\"===== OBRIGADO E VOLTE SEMPRE ======\");\r\n                Utils.pausar(2);\r\n                return false; // Indica que deve sair do loop e terminar a execução\r\n            default:\r\n                System.out.println(\"OPÇÃO INVÁLIDA.\");\r\n                Utils.pausar(2);\r\n                return true; // Continua no menu\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/View/MenuPrincipal.java b/src/main/java/View/MenuPrincipal.java
+--- a/src/main/java/View/MenuPrincipal.java	(revision 0c955ae10ca11207178f4ec4cacb19e3234b99dd)
++++ b/src/main/java/View/MenuPrincipal.java	(date 1710886805907)
+@@ -1,13 +1,13 @@
+ package View;
+ 
+ import Helper.Utils;
+-import Model.ProdutoDAO;
+ import java.util.Scanner;
++import Model.ProdutoDAO;
+ 
+ public class MenuPrincipal {
+-
+     private Scanner teclado;
+     private ProdutoDAO produtoDao;
++    private static final String SENHA_ADM = "senha123"; // Senha predefinida para o administrador
+ 
+     public MenuPrincipal(Scanner teclado, ProdutoDAO produtoDao) {
+         this.teclado = teclado;
+@@ -15,26 +15,29 @@
+     }
+ 
+     public void exibir() {
+-        while (true) { // Mantém o menu rodando até que o usuário escolha sair
+-            System.out.println("=================================");
+-            System.out.println("========= BEM-VINDO(A) ==========");
+-            System.out.println("======== MERCADO CENTRAL ========");
+-            System.out.println("=================================");
+-            System.out.println(" Selecione uma opção abaixo: ");
+-            System.out.println("1 - CADASTRAR PRODUTO");
+-            System.out.println("2 - LISTAR PRODUTOS");
+-            System.out.println("3 - COMPRAR PRODUTO");
+-            System.out.println("4 - VISUALIZAR CARRINHO");
+-            System.out.println("5 - SAIR");
++        exibirMenu(); // Chama o método exibirMenu para mostrar o menu principal.
++    }
++
++    private void exibirMenu() {
++        System.out.println("=================================");
++        System.out.println("========= BEM-VINDO(A) ==========");
++        System.out.println("======== MERCADO CENTRAL ========");
++        System.out.println("=================================");
++        System.out.println(" SELECIONE UMA OPÇÃO ABAIXO: ");
++        System.out.println("1 - CADASTRAR PRODUTO");
++        System.out.println("2 - LISTAR PRODUTOS");
++        System.out.println("3 - COMPRAR PRODUTO");
++        System.out.println("4 - VISUALIZAR CARRINHO");
++        System.out.println("5 - ÁREA DO ADMINISTRADOR");
++        System.out.println("6 - SAIR");
+ 
+-            try {
+-                int opcao = lerOpcaoDoUsuario();
+-                if (!processarOpcaoMenu(opcao)) break; // Sai do loop se processarOpcaoMenu retornar false
+-            } catch (NumberFormatException e) {
+-                System.out.println("Entrada inválida. Por favor, insira um número.");
+-                Utils.pausar(2);
+-                // Não precisa chamar exibir() novamente, pois o loop while já faz isso
+-            }
++        try {
++            int opcao = lerOpcaoDoUsuario();
++            processarOpcaoMenu(opcao);
++        } catch (NumberFormatException e) {
++            System.out.println("ENTRADA INVÁLIDA. POR FAVOR, INSIRA UM NÚMERO.");
++            Utils.pausar(2);
++            exibirMenu();
+         }
+     }
+ 
+@@ -43,28 +46,34 @@
+         return Integer.parseInt(entrada);
+     }
+ 
+-    private boolean processarOpcaoMenu(int opcao) {
++    private void processarOpcaoMenu(int opcao) {
+         switch (opcao) {
+             case 1:
+                 CadastroDeProduto.executar(teclado, produtoDao);
+-                return true;
++                break;
+             case 2:
+-                ListagemDeProdutos.executar(produtoDao);
+-                return true;
++               ListagemDeProdutos.executar(produtoDao);
++                break;
+             case 3:
+                 CompraDeProdutos.executar(teclado, produtoDao);
+-                return true;
++                break;
+             case 4:
+-                VisualizacaoDoCarrinho.executar();
+-                return true;
++                 VisualizacaoDoCarrinho.executar();
++                break;
+             case 5:
++                AcessarAreaAdministrativa areaAdm = new AcessarAreaAdministrativa(teclado, produtoDao, this);
++                areaAdm.exibir();
++                break;
++            case 6:
+                 System.out.println("===== OBRIGADO E VOLTE SEMPRE ======");
+                 Utils.pausar(2);
+-                return false; // Indica que deve sair do loop e terminar a execução
++                System.exit(0);
++                break;
+             default:
+                 System.out.println("OPÇÃO INVÁLIDA.");
+                 Utils.pausar(2);
+-                return true; // Continua no menu
++                exibirMenu(); // Assegura que o usuário retorne ao menu após ver a mensagem.
++                break;
+         }
+     }
+ }
+Index: src/main/java/View/AcessarAreaAdministrativa.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/View/AcessarAreaAdministrativa.java b/src/main/java/View/AcessarAreaAdministrativa.java
+new file mode 100644
+--- /dev/null	(date 1710886903106)
++++ b/src/main/java/View/AcessarAreaAdministrativa.java	(date 1710886903106)
+@@ -0,0 +1,31 @@
++package View;
++
++import Helper.Utils;
++import java.util.Scanner;
++import Model.ProdutoDAO;
++
++public class AcessarAreaAdministrativa {
++    private Scanner teclado;
++    private ProdutoDAO produtoDao;
++    private MenuPrincipal menuPrincipal;
++    private static final String SENHA_ADM = "142536"; // Senha predefinida para o administrador ajustada aqui
++
++    public AcessarAreaAdministrativa(Scanner teclado, ProdutoDAO produtoDao, MenuPrincipal menuPrincipal) {
++        this.teclado = teclado;
++        this.produtoDao = produtoDao;
++        this.menuPrincipal = menuPrincipal;
++    }
++
++    public void exibir() {
++        System.out.print("DIGITE A SENHA DO ADMINISTRADOR: ");
++        String senha = teclado.nextLine();
++        if (SENHA_ADM.equals(senha)) { // Comparação da senha digitada com a constante
++            System.out.println("ACESSO CONCEDIDO.");
++            // Aqui pode seguir com a lógica específica da área do administrador
++        } else {
++            System.out.println("SENHA INCORRETA.");
++            Utils.pausar(2);
++            menuPrincipal.exibir();
++        }
++    }
++}
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"cce1fb38-72b6-4716-be15-c0157ad99cd0\" name=\"Changes\" comment=\"1. Organização do Código e Estrutura de Pacotes&#10;2. Padrões de Design e Arquitetura&#10;3. Validação e Regras de Negócios&#10;4. Usabilidade e Experiência do Usuário&#10;5. Testes e Manutenção&#10;6. Segurança\" />\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GithubPullRequestsUISettings\">\r\n    <option name=\"selectedUrlAndAccountId\">\r\n      <UrlAndAccount>\r\n        <option name=\"accountId\" value=\"9a4a7684-78c4-4609-bc05-ab3566cf6733\" />\r\n        <option name=\"url\" value=\"https://github.com/thiagorduarte1107/Mercado-SQLite-v1.3.git\" />\r\n      </UrlAndAccount>\r\n    </option>\r\n  </component>\r\n  <component name=\"MarkdownSettingsMigration\">\r\n    <option name=\"stateVersion\" value=\"1\" />\r\n  </component>\r\n  <component name=\"MavenImportPreferences\">\r\n    <option name=\"importingSettings\">\r\n      <MavenImportingSettings>\r\n        <option name=\"workspaceImportEnabled\" value=\"true\" />\r\n      </MavenImportingSettings>\r\n    </option>\r\n  </component>\r\n  <component name=\"ProblemsViewState\">\r\n    <option name=\"selectedTabId\" value=\"CurrentFile\" />\r\n  </component>\r\n  <component name=\"ProjectId\" id=\"2cnDmoASkskBUEkAQlfQVXIZ1KN\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;C:/Users/LAB-BABY/Desktop/Dev/Mercado/Mercado-v1.2/src/main/java&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"CopyFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\LAB-BABY\\Desktop\\Dev\\Mercado\\Mercado-v1.2\\src\\main\\java\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"cce1fb38-72b6-4716-be15-c0157ad99cd0\" name=\"Changes\" comment=\"\" />\r\n      <created>1708738611946</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1708738611946</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"1. Organização do Código e Estrutura de Pacotes&#10;2. Padrões de Design e Arquitetura&#10;3. Validação e Regras de Negócios&#10;4. Usabilidade e Experiência do Usuário&#10;5. Testes e Manutenção&#10;6. Segurança\">\r\n      <created>1710568437581</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1710568437581</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"2\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"1. Organização do Código e Estrutura de Pacotes&#10;2. Padrões de Design e Arquitetura&#10;3. Validação e Regras de Negócios&#10;4. Usabilidade e Experiência do Usuário&#10;5. Testes e Manutenção&#10;6. Segurança\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"1. Organização do Código e Estrutura de Pacotes&#10;2. Padrões de Design e Arquitetura&#10;3. Validação e Regras de Negócios&#10;4. Usabilidade e Experiência do Usuário&#10;5. Testes e Manutenção&#10;6. Segurança\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 0c955ae10ca11207178f4ec4cacb19e3234b99dd)
++++ b/.idea/workspace.xml	(date 1710885416543)
+@@ -4,7 +4,13 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="cce1fb38-72b6-4716-be15-c0157ad99cd0" name="Changes" comment="1. Organização do Código e Estrutura de Pacotes&#10;2. Padrões de Design e Arquitetura&#10;3. Validação e Regras de Negócios&#10;4. Usabilidade e Experiência do Usuário&#10;5. Testes e Manutenção&#10;6. Segurança" />
++    <list default="true" id="cce1fb38-72b6-4716-be15-c0157ad99cd0" name="Changes" comment="1. Organização do Código e Estrutura de Pacotes&#10;2. Padrões de Design e Arquitetura&#10;3. Validação e Regras de Negócios&#10;4. Usabilidade e Experiência do Usuário&#10;5. Testes e Manutenção&#10;6. Segurança">
++      <change afterPath="$PROJECT_DIR$/src/main/java/View/AcessarAreaAdministrativa.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/mercado.db" beforeDir="false" afterPath="$PROJECT_DIR$/mercado.db" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/View/CompraDeProdutos.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/View/CompraDeProdutos.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/View/MenuPrincipal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/View/MenuPrincipal.java" afterDir="false" />
++    </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -76,8 +82,26 @@
+       <option name="project" value="LOCAL" />
+       <updated>1710568437581</updated>
+     </task>
+-    <option name="localTasksCounter" value="2" />
++    <task id="LOCAL-00002" summary="1. Organização do Código e Estrutura de Pacotes&#10;2. Padrões de Design e Arquitetura&#10;3. Validação e Regras de Negócios&#10;4. Usabilidade e Experiência do Usuário&#10;5. Testes e Manutenção&#10;6. Segurança">
++      <created>1710568668379</created>
++      <option name="number" value="00002" />
++      <option name="presentableId" value="LOCAL-00002" />
++      <option name="project" value="LOCAL" />
++      <updated>1710568668379</updated>
++    </task>
++    <option name="localTasksCounter" value="3" />
+     <servers />
++  </component>
++  <component name="Vcs.Log.Tabs.Properties">
++    <option name="TAB_STATES">
++      <map>
++        <entry key="MAIN">
++          <value>
++            <State />
++          </value>
++        </entry>
++      </map>
++    </option>
+   </component>
+   <component name="VcsManagerConfiguration">
+     <MESSAGE value="1. Organização do Código e Estrutura de Pacotes&#10;2. Padrões de Design e Arquitetura&#10;3. Validação e Regras de Negócios&#10;4. Usabilidade e Experiência do Usuário&#10;5. Testes e Manutenção&#10;6. Segurança" />
