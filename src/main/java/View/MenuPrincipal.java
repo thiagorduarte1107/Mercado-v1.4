@@ -1,13 +1,13 @@
 package View;
 
 import Helper.Utils;
-import Model.ProdutoDAO;
 import java.util.Scanner;
+import Model.ProdutoDAO;
 
 public class MenuPrincipal {
-
     private Scanner teclado;
     private ProdutoDAO produtoDao;
+    private static final String SENHA_ADM = "senha123"; // Senha predefinida para o administrador
 
     public MenuPrincipal(Scanner teclado, ProdutoDAO produtoDao) {
         this.teclado = teclado;
@@ -15,26 +15,29 @@ public class MenuPrincipal {
     }
 
     public void exibir() {
-        while (true) { // Mantém o menu rodando até que o usuário escolha sair
-            System.out.println("=================================");
-            System.out.println("========= BEM-VINDO(A) ==========");
-            System.out.println("======== MERCADO CENTRAL ========");
-            System.out.println("=================================");
-            System.out.println(" Selecione uma opção abaixo: ");
-            System.out.println("1 - CADASTRAR PRODUTO");
-            System.out.println("2 - LISTAR PRODUTOS");
-            System.out.println("3 - COMPRAR PRODUTO");
-            System.out.println("4 - VISUALIZAR CARRINHO");
-            System.out.println("5 - SAIR");
+        exibirMenu(); // Chama o método exibirMenu para mostrar o menu principal.
+    }
 
-            try {
-                int opcao = lerOpcaoDoUsuario();
-                if (!processarOpcaoMenu(opcao)) break; // Sai do loop se processarOpcaoMenu retornar false
-            } catch (NumberFormatException e) {
-                System.out.println("Entrada inválida. Por favor, insira um número.");
-                Utils.pausar(2);
-                // Não precisa chamar exibir() novamente, pois o loop while já faz isso
-            }
+    private void exibirMenu() {
+        System.out.println("=================================");
+        System.out.println("========= BEM-VINDO(A) ==========");
+        System.out.println("======== MERCADO CENTRAL ========");
+        System.out.println("=================================");
+        System.out.println(" SELECIONE UMA OPÇÃO ABAIXO: ");
+        System.out.println("1 - CADASTRAR PRODUTO");
+        System.out.println("2 - LISTAR PRODUTOS");
+        System.out.println("3 - COMPRAR PRODUTO");
+        System.out.println("4 - VISUALIZAR CARRINHO");
+        System.out.println("5 - ÁREA DO ADMINISTRADOR");
+        System.out.println("6 - SAIR");
+
+        try {
+            int opcao = lerOpcaoDoUsuario();
+            processarOpcaoMenu(opcao);
+        } catch (NumberFormatException e) {
+            System.out.println("ENTRADA INVÁLIDA. POR FAVOR, INSIRA UM NÚMERO.");
+            Utils.pausar(2);
+            exibirMenu();
         }
     }
 
@@ -43,28 +46,34 @@ public class MenuPrincipal {
         return Integer.parseInt(entrada);
     }
 
-    private boolean processarOpcaoMenu(int opcao) {
+    private void processarOpcaoMenu(int opcao) {
         switch (opcao) {
             case 1:
                 CadastroDeProduto.executar(teclado, produtoDao);
-                return true;
+                break;
             case 2:
-                ListagemDeProdutos.executar(produtoDao);
-                return true;
+               ListagemDeProdutos.executar(produtoDao);
+                break;
             case 3:
                 CompraDeProdutos.executar(teclado, produtoDao);
-                return true;
+                break;
             case 4:
-                VisualizacaoDoCarrinho.executar();
-                return true;
+                 VisualizacaoDoCarrinho.executar();
+                break;
             case 5:
+                AcessarAreaAdministrativa areaAdm = new AcessarAreaAdministrativa(teclado, produtoDao, this);
+                areaAdm.exibir();
+                break;
+            case 6:
                 System.out.println("===== OBRIGADO E VOLTE SEMPRE ======");
                 Utils.pausar(2);
-                return false; // Indica que deve sair do loop e terminar a execução
+                System.exit(0);
+                break;
             default:
                 System.out.println("OPÇÃO INVÁLIDA.");
                 Utils.pausar(2);
-                return true; // Continua no menu
+                exibirMenu(); // Assegura que o usuário retorne ao menu após ver a mensagem.
+                break;
         }
     }
 }
